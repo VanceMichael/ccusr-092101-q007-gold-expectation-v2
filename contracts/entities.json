@@ -1,0 +1,19 @@
+{
+  "schema_version": "1",
+  "domain": "黄金预期差复盘服务",
+  "required_fields": [
+    "series_ref",
+    "event_time",
+    "available_at",
+    "value",
+    "unit",
+    "source_revision"
+  ],
+  "time_format": "ISO 8601 with offset",
+  "sample": {
+    "series_ref": "GOLD-SPOT",
+    "value": "4300.00",
+    "unit": "USD/oz",
+    "source_revision": 2
+  }
+}
