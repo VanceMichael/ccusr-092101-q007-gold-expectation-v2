@@ -1,0 +1,41 @@
+{
+  "scenario": "美联储决议前，编辑为一张黄金现货衍生图表申请在社媒渠道发布",
+  "note": "示例不含真实身份信息；时间均带时区偏移，服务只给可用性判断，不含行情结论或交易建议",
+  "contract": {
+    "contract_ref": "CTR-EXAMPLE",
+    "version": 1,
+    "source_ref": "SRC-EXAMPLE",
+    "effective_from": "2026-01-01T00:00:00+00:00",
+    "allowed_sections": ["gold", "macro"],
+    "allowed_regions": ["CN"],
+    "allowed_channels": ["web", "app"],
+    "attribution_required": true,
+    "attribution_template": "数据来源：{source}（{acquired_at}，{unit}）",
+    "quota": 5
+  },
+  "material": {
+    "material_ref": "MAT-EXAMPLE-SPOT",
+    "source_ref": "SRC-EXAMPLE",
+    "contract_ref": "CTR-EXAMPLE",
+    "kind": "spot",
+    "acquired_at": "2026-09-16T09:30:00-04:00",
+    "timezone": "America/New_York",
+    "unit": "USD/oz",
+    "payload_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "review_request": {
+    "subject_type": "material",
+    "subject_ref": "MAT-EXAMPLE-SPOT",
+    "planned_publish_at": "2026-09-17T13:00:00+08:00",
+    "channel": "social",
+    "section": "gold",
+    "region": "CN"
+  },
+  "review_response": {
+    "verdict": "blocked",
+    "reasons": ["channel_not_licensed"],
+    "attributions": ["数据来源：示例行情终端（2026-09-16T09:30:00-04:00，USD/oz）"],
+    "trigger": "editor_request"
+  },
+  "remediation_actions": ["add_attribution", "replace", "takedown"]
+}

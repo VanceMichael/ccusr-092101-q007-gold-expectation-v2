@@ -1,0 +1,67 @@
+{
+  "schema_version": "1",
+  "domain": "新闻数据授权与禁发控制",
+  "service_boundary": "只管理素材的使用权与发布边界，不产出、不存储行情结论或交易建议",
+  "time_format": "ISO 8601 with offset",
+  "entities": {
+    "source": {
+      "required_fields": ["source_ref", "kind", "display_name"],
+      "kind_enum": ["terminal", "public_statement", "research_institution", "official", "other"]
+    },
+    "contract": {
+      "required_fields": [
+        "contract_ref",
+        "version",
+        "source_ref",
+        "effective_from",
+        "allowed_sections",
+        "allowed_regions",
+        "allowed_channels",
+        "attribution_template"
+      ],
+      "notes": "版本只增不改；收窄产生新版本并触发对已发布页面的级联复审"
+    },
+    "material": {
+      "required_fields": ["material_ref", "source_ref", "contract_ref", "kind", "acquired_at", "unit"],
+      "kind_enum": ["spot", "futures", "rates", "oil", "official_purchase"],
+      "notes": "保留原时区（acquired_at 偏移与 timezone）、计量单位与取得时间；附件只记录 payload_ref 或 payload_sha256"
+    },
+    "derivative": {
+      "required_fields": ["derivative_ref", "parents"],
+      "notes": "parents 记录衍生图表与原始素材的关系；attribution_text 为空且上游合同要求署名时审查不通过"
+    },
+    "embargo": {
+      "required_fields": ["embargo_ref", "event_ref", "embargo_until"],
+      "notes": "source_ref/kind/channel/region 为 null 表示不限；例外批准见 embargo_approvals"
+    },
+    "review": {
+      "required_fields": ["subject_type", "subject_ref", "planned_publish_at", "channel", "section", "region"],
+      "verdict_enum": ["allowed", "blocked"],
+      "reason_enum": [
+        "source_withdrawn",
+        "material_withdrawn",
+        "contract_not_effective",
+        "contract_expired",
+        "channel_not_licensed",
+        "section_not_licensed",
+        "region_not_licensed",
+        "embargo_active",
+        "attribution_missing",
+        "quota_exceeded"
+      ],
+      "notes": "审查结果只增不改；rule_snapshot 固定评估时的合同版本、来源状态、禁发与例外"
+    },
+    "article_version": {
+      "required_fields": ["channels", "section", "region", "planned_publish_at", "references"],
+      "notes": "references 在版本内不可变；只有已发布版本实际引用的素材才占用授权额度"
+    },
+    "voucher": {
+      "required_fields": ["article_ref", "version_no", "issued_by"],
+      "notes": "法务签发；rule_snapshot 固定签发当时的合同版本、来源状态与禁发，规则变化后凭证失效"
+    },
+    "remediation": {
+      "action_type_enum": ["add_attribution", "replace", "takedown"],
+      "notes": "已发布页面的渠道处置：补署名、替换或下架；闭环前一直出现在文章合规清单中"
+    }
+  }
+}
