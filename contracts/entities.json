@@ -1,19 +1,67 @@
 {
-  "schema_version": "1",
-  "domain": "黄金预期差复盘服务",
-  "required_fields": [
-    "series_ref",
-    "event_time",
-    "available_at",
-    "value",
-    "unit",
-    "source_revision"
-  ],
+  "schema_version": "2",
+  "domain": "数据授权与禁发控制（黄金预期差复盘服务）",
   "time_format": "ISO 8601 with offset",
-  "sample": {
-    "series_ref": "GOLD-SPOT",
-    "value": "4300.00",
-    "unit": "USD/oz",
-    "source_revision": 2
+  "conventions": [
+    "外部主体一律使用不含真实身份信息的引用编号",
+    "素材各自保留原时区 tz_name、原计量单位 unit、事件时间 event_time",
+    "附件只记录受控引用 controlled_ref 或 sha256 摘要 payload_digest/spec_digest",
+    "业务事件携带来源 source_ref 与自增序列号 seq",
+    "合同收窄、来源撤回、禁发改期只追加新事实并产生新审查结果，不覆盖历史",
+    "服务只管理使用权与发布边界，不输出行情结论或交易建议"
+  ],
+  "material_categories": ["spot", "futures", "rate", "oil", "official_gold"],
+  "entities": {
+    "source": {
+      "required_fields": ["source_id", "name", "kind", "status", "created_at"],
+      "kind": ["terminal", "public_statement", "research_pack", "official"],
+      "status": ["active", "withdrawn"]
+    },
+    "contract_version": {
+      "required_fields": ["contract_version_id", "source_id", "version_label", "status",
+        "valid_from", "allowed_sections", "allowed_regions", "allowed_channels",
+        "attribution_template", "derived_allowed", "quota_limit", "terms_digest"],
+      "wildcard": "*",
+      "note": "同来源同时只有一个 current；新版本使旧版本 superseded"
+    },
+    "material": {
+      "required_fields": ["material_id", "source_id", "acquired_contract_version_id",
+        "series_ref", "category", "event_time", "tz_name", "unit", "status"],
+      "sample": {
+        "series_ref": "GOLD-SPOT",
+        "category": "spot",
+        "event_time": "2026-09-26T14:00:00-04:00",
+        "tz_name": "America/New_York",
+        "unit": "USD/oz",
+        "source_revision": 2
+      }
+    },
+    "chart": {
+      "required_fields": ["chart_id", "source_id", "material_id", "title", "status"],
+      "lineage": "charts.material_id 为主素材；chart_materials 记录全部上游素材"
+    },
+    "embargo": {
+      "required_fields": ["embargo_id", "scope_type", "scope_ref", "embargo_until", "status"],
+      "scope_type": ["global", "category", "source", "material", "chart"],
+      "status": ["active", "lifted", "superseded"],
+      "note": "改期=新行 supersedes 旧行；解除=lifted"
+    },
+    "embargo_exception": {
+      "required_fields": ["exception_id", "target_type", "target_id", "granted_by", "reason"],
+      "note": "expires_at 按计划发布时刻判定；revoked_at 按审查当下判定"
+    },
+    "review": {
+      "required_fields": ["review_id", "version_id", "kind", "verdict", "rule_snapshot"],
+      "kind": ["preview", "committed"],
+      "verdict": ["usable", "blocked"]
+    },
+    "clearance_credential": {
+      "required_fields": ["credential_id", "review_id", "version_id", "channels",
+        "regions", "required_attributions", "snapshot_digest", "issued_by", "issued_at"]
+    },
+    "disposition": {
+      "action_type": ["add_attribution", "replace", "take_down", "note"],
+      "status": ["open", "in_progress", "closed"]
+    }
   }
 }

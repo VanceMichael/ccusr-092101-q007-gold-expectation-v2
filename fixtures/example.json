@@ -1,6 +1,87 @@
 {
-  "series_ref": "GOLD-SPOT",
-  "value": "4300.00",
-  "unit": "USD/oz",
-  "source_revision": 2
+  "scenario": "美联储决议夜：五类素材在禁发、渠道与署名约束下的可用性判断（示例编号不含真实身份）",
+  "requests": [
+    {
+      "POST /sources": {
+        "source_id": "src-term-demo",
+        "name": "行情终端（示例）",
+        "kind": "terminal"
+      }
+    },
+    {
+      "POST /sources/src-term-demo/contracts": {
+        "version_label": "2026Q3-v1",
+        "valid_from": "2026-09-01T00:00:00+08:00",
+        "allowed_sections": ["finance", "macro"],
+        "allowed_regions": ["CN", "HK"],
+        "allowed_channels": ["web", "app"],
+        "attribution_template": "数据来源：行情终端（示例编号）",
+        "derived_allowed": true,
+        "derived_attribution_required": true,
+        "quota_limit": 5
+      }
+    },
+    {
+      "POST /materials": {
+        "source_id": "src-term-demo",
+        "material_id": "mat-demo-spot",
+        "series_ref": "GOLD-SPOT",
+        "category": "spot",
+        "event_time": "2026-09-26T14:00:00-04:00",
+        "tz_name": "America/New_York",
+        "unit": "USD/oz",
+        "controlled_ref": "ref://terminal/GOLD-SPOT/2026-09-26",
+        "payload_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "POST /embargoes": {
+        "scope_type": "category",
+        "scope_ref": "spot",
+        "embargo_until": "2026-09-27T02:00:00+08:00",
+        "reason": "美联储决议禁发（示例）"
+      }
+    },
+    {
+      "POST /articles": {"article_id": "art-demo", "title": "决议点评（示例）", "section": "finance"}
+    },
+    {
+      "POST /articles/art-demo/versions": {
+        "planned_publish_at": "2026-09-26T22:00:00+08:00",
+        "planned_channels": ["web", "social"],
+        "planned_regions": ["CN"],
+        "refs": [{"material_id": "mat-demo-spot"}],
+        "comment": "预期 verdict=blocked：embargo_active（22:00 早于次日 02:00）且 social 不在授权渠道"
+      }
+    },
+    {
+      "POST /exceptions": {
+        "target_type": "material",
+        "target_id": "mat-demo-spot",
+        "reason": "快讯栏目例外批准（示例）",
+        "expires_at": "2026-09-27T03:00:00+08:00"
+      }
+    },
+    {
+      "POST /articles/art-demo/versions": {
+        "planned_publish_at": "2026-09-27T02:30:00+08:00",
+        "planned_channels": ["web"],
+        "planned_regions": ["CN"],
+        "refs": [{"material_id": "mat-demo-spot"}],
+        "commit": true,
+        "comment": "预期 verdict=usable：禁发已过点（或被例外覆盖）、web/CN 在授权范围内"
+      }
+    },
+    {
+      "GET /articles/art-demo/report": {
+        "comment": "列出许可依据（合同版本+terms_digest）、应展示署名、发布渠道与未闭环处置"
+      }
+    }
+  ],
+  "other_categories_keep_own_units": [
+    {"series_ref": "GOLD-FUT-GCX", "category": "futures", "unit": "USD/oz", "tz_name": "America/New_York"},
+    {"series_ref": "FED-FUNDS", "category": "rate", "unit": "%", "tz_name": "America/New_York"},
+    {"series_ref": "WTI-OIL", "category": "oil", "unit": "USD/bbl", "tz_name": "Asia/Shanghai"},
+    {"series_ref": "PBoC-GOLD", "category": "official_gold", "unit": "t", "tz_name": "Asia/Shanghai"}
+  ]
 }
